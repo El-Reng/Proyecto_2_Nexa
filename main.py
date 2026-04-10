@@ -1,7 +1,12 @@
 #NEXA — Núcleo de Ejecución y eXperiencia Asistida
 
-import discord, comandos, memoria
+import discord, os, comandos, memoria
 from discord.ext import commands
+
+TOKEN = os.getenv("TOKEN")
+
+if TOKEN is None:
+    raise ValueError('La variable "TOKEN" no ha sido cargada.')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -17,23 +22,12 @@ async def on_message(message):
     if message.author == bot.user:
         return
     
-    contenido = message.content.lower().split()
-
-    if "nexa" in contenido:
-
-        if "hola" in contenido:
-            await comandos.saludar(message)
-
-        elif "chau" in contenido:
-            await comandos.despedir(message)
-
-        elif "ayuda" in contenido:
-            await comandos.ayuda(message)
-
+    await comandos.responder_mensaje(message)
     await bot.process_commands(message)
 
 @bot.event
 async def setup_hook():
     bot.loop.create_task(comandos.aviso_de_clases(bot))
+    bot.loop.create_task(comandos.aviso_cuota(bot))
 
-bot.run(memoria.token)
+bot.run(TOKEN)
