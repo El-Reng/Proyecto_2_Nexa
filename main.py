@@ -17,9 +17,14 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Conectado como {bot.user}")
 
+    canal = bot.get_channel(memoria.id_canal)
+
+    if canal and isinstance(canal, discord.TextChannel):
+        await canal.send("Conexión restablecida. Estoy nuevamente disponible.")
+
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:
+    if message.author.bot:
         return
     
     await comandos.responder_mensaje(message)
@@ -28,6 +33,7 @@ async def on_message(message):
 @bot.event
 async def setup_hook():
     bot.loop.create_task(comandos.aviso_de_clases(bot))
+    bot.loop.create_task(comandos.aviso_de_recordatorios(bot))
     bot.loop.create_task(comandos.aviso_cuota(bot))
 
 bot.run(TOKEN)
